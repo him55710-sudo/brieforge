@@ -31,7 +31,7 @@ OPENAI_API_KEY=your_key_here
 OPENAI_MODEL=gpt-4.1-mini
 ```
 
-- 키가 있으면 아이디어에 맞춰 7개 질문을 조정하고, 생성된 브리프에 데이터 모델·구현 단계·맞춤 검증 시나리오를 추가합니다.
+- 키가 있으면 아이디어에 맞춰 10개 질문을 조정하고, 생성된 브리프에 데이터 모델·구현 단계·맞춤 검증 시나리오를 추가합니다.
 - [공식 OpenAI Responses API 문서](https://developers.openai.com/api/reference/typescript/resources/beta/subresources/responses/methods/create)를 참고한 서버 측 REST 호출입니다. 모델은 `OPENAI_MODEL`로 변경할 수 있습니다.
 - 사용자 답변과 스카우트 필수 계약은 결정적 템플릿에 보존합니다. AI 제안이 충돌하면 기존 요구사항이 우선합니다.
 - 키 부재, 권한/한도 오류, 25초 타임아웃, 잘못된 응답은 기본 질문·템플릿으로 자동 전환됩니다. 화면에서 실제 생성 모드를 확인할 수 있습니다.
@@ -41,7 +41,7 @@ OPENAI_MODEL=gpt-4.1-mini
 ## 데모 (약 3분)
 
 1. **공모전 스카우트 프롬프트 만들기**를 누릅니다.
-2. 미리 채워진 7개 답변을 확인하고 필요하면 수정합니다.
+2. 미리 채워진 10개 답변과 준비물 상태를 확인하고 필요하면 수정합니다.
 3. **마스터 브리프 생성**을 누릅니다.
 4. 국내 오프라인/하이브리드 우선, AI·창업 우선, 생성형 광고·영상 제작 공모전 제외, 적합도 A/B 판단, 공식 출처 검증을 확인합니다.
 5. `scout-results.json`용 JSON Schema와 인수 테스트가 포함된 문서를 복사하거나 `.md`로 다운로드합니다.
@@ -77,12 +77,12 @@ CONTEST.md                 # 한국어 제출 답변
 
 - `GET /api/health`: `{ "status": "ok", "app": "BriefForge", "version": "1.0.0", "mode": "offline" }`. 키 설정 시 `mode`는 `ai`; 연결 성공을 보장하는 지표는 아닙니다.
 - `POST /api/questions`: `{ idea, preset?, localOnly? }` → `{ questions, mode, fallback? }`.
-- `POST /api/generate`: 위 입력 + `answers: { audience, goal, features, constraints, style, stack, success }` → `{ markdown, mode, fallback? }`.
-- 아이디어 3~2,000자, 답변 각 1~2,000자, 요청 본문 최대 40KB. 잘못된 입력은 400. 응답은 `Cache-Control: no-store`.
+- `POST /api/generate`: 위 입력 + `answers: { audience, goal, features, constraints, style, mood, layout, references, stack, success }` 및 `setup: { codex, claude, github, supabase, huggingface, vercel, openai }` (각 값: 준비됨 / 아직 / 이번엔 불필요) → `{ markdown, mode, fallback? }`.
+- 아이디어 3~2,000자, 답변 각 1~2,000자, 요청 본문 최대 80KB. 잘못된 입력은 400. 응답은 `Cache-Control: no-store`.
 
 ## 개인정보와 저장
 
-최근 완성한 브리프·아이디어·7개 답변 1개만 현재 브라우저의 `localStorage`에 저장합니다. 새 생성 시 덮어쓰며 최근 작업의 삭제 버튼으로 지울 수 있습니다. 저장소 접근이 차단되면 다운로드를 안내합니다. 일반 생성 과정에서는 질문 답변 초안을 저장하지 않으므로 새로고침 시 미완성 답변은 사라집니다.
+최근 완성한 브리프·아이디어·10개 답변과 준비물 상태 1개만 현재 브라우저의 `localStorage`에 저장합니다. 새 생성 시 덮어쓰며 최근 작업의 삭제 버튼으로 지울 수 있습니다. 저장소 접근이 차단되면 다운로드를 안내합니다. 일반 생성 과정에서는 질문 답변 초안을 저장하지 않으므로 새로고침 시 미완성 답변은 사라집니다.
 
 앱에 인증·DB·사용자 입력 로그는 없습니다. 로컬 모드는 아이디어·답변을 전송하지 않습니다(상태 확인용 `/api/health` 요청은 수행). AI 모드는 서버를 통해 OpenAI에 전송하고 `store: false`를 사용합니다. 이는 OpenAI의 모든 별도 보관 정책을 면제한다는 의미는 아닙니다. 호스팅 서비스의 접속 메타데이터 기록이 적용될 수 있습니다.
 

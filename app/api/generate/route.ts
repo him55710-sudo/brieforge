@@ -4,7 +4,7 @@ export const maxDuration = 40;
 export async function POST(request: Request) {
   let input;
   try { input = generateSchema.parse(await readBody(request)); }
-  catch { return Response.json({ error: "아이디어와 7개 답변을 확인해 주세요. 각 답변은 1~2,000자입니다." }, { status: 400, headers: jsonHeaders }); }
+  catch { return Response.json({ error: "아이디어, 모든 답변과 준비물 상태를 확인해 주세요. 각 답변은 1~2,000자입니다." }, { status: 400, headers: jsonHeaders }); }
   const base = synthesizeBrief(input);
   if (!input.localOnly && process.env.OPENAI_API_KEY) {
     try {

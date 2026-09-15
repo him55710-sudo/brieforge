@@ -13,7 +13,7 @@ export async function askOpenAI(instructions: string, input: unknown, json = fal
     signal: AbortSignal.timeout(25000),
     body: JSON.stringify({
       model: process.env.OPENAI_MODEL || "gpt-4.1-mini", store: false,
-      instructions, input: JSON.stringify(input), max_output_tokens: json ? 2500 : 4000,
+      instructions, input: JSON.stringify(input), max_output_tokens: json ? 7000 : 4000,
       ...(json ? { text: { format: { type: "json_object" } } } : {}),
     }),
   });
@@ -27,7 +27,7 @@ export async function askOpenAI(instructions: string, input: unknown, json = fal
 }
 export const jsonHeaders = { "Cache-Control": "no-store" };
 export async function readBody(request: Request): Promise<unknown> {
-  if (Number(request.headers.get("content-length")) > 40000) throw new Error("Input too large");
+  if (Number(request.headers.get("content-length")) > 80000) throw new Error("Input too large");
   const reader = request.body?.getReader();
   if (!reader) throw new Error("Missing body");
   const chunks: Uint8Array[] = [];
@@ -36,7 +36,7 @@ export async function readBody(request: Request): Promise<unknown> {
     const { value, done } = await reader.read();
     if (done) break;
     size += value.byteLength;
-    if (size > 40000) { await reader.cancel(); throw new Error("Input too large"); }
+    if (size > 80000) { await reader.cancel(); throw new Error("Input too large"); }
     chunks.push(value);
   }
   return JSON.parse(Buffer.concat(chunks).toString("utf8"));
